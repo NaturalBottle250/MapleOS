@@ -20,16 +20,27 @@ int Memory::Initialize(int sizeKB)
     }
     vRAM = (char*) malloc(size);
 
-    cout << sizeof(Page);
+    cout << sizeof(Page) << endl;
 
 
     pageTable = (Page*) vRAM;
 
 
+    for (size_t index = 0; index < PAGE_COUNT; index++)
+    {
+        Page& page = pageTable[index];
+        page.frame = index;
+        page.pID = -1;
+        page.filledBytes = 0;
+        page.write = true;
+        page.read = false;
 
-    for(size_t index = 0; index < PAGE_COUNT; index++)
-        pageTable[index] = {index,-1,0, true, false};
-    cout << "\n";
+        for (size_t i = 0; i < PAGE_SIZE; i++)
+        {
+            page.metadata[i] = EMPTY_TYPE;
+        }
+    }
+    cout << "Paged RAM: " << PAGE_COUNT * PAGE_SIZE <<"\n";
 
     std::ostringstream oss;
     oss << "Initialized Page table with size " << PAGE_TABLE_SIZE;
@@ -64,13 +75,45 @@ int Memory::StoreByte(size_t frame, char byte)
     address = address + page.filledBytes++;
 
     vRAM[address] = byte;
+    page.metadata[page.filledBytes-1] = CHAR_TYPE;
 
     std::ostringstream oss;
-    oss << "Wrote value '" << byte << "' to address " << static_cast<void*>(&vRAM[address])
-        << " (frame " << page.frame << ", offset " << page.filledBytes-1 << " at offset " << address <<")";
+    oss << "Wrote value '" << byte << "' to address 0x" << std::hex <<address << std::dec
+        << " (frame " << page.frame << ", offset " << page.filledBytes-1 << " at actual "<< static_cast<void*>(&vRAM[address])  <<")";
     SystemColors::PrintColored(oss.str().c_str(), BRIGHT_BLUE);
 
     oss.str("");
+    return 0;
+}
+
+int Memory::StoreInt(size_t frame, int number)
+{
+    Page& page = pageTable[frame];
+
+    size_t address = GetFrameAddress(frame);
+    address = address + page.filledBytes;
+
+    //page.filledBytes+= sizeof(number);
+
+    std::ostringstream oss;
+
+    for(int index = 0; index < sizeof(number); index++)
+    {
+
+        vRAM[address+index] = (number >> (index * 8)) & 0xFF;
+        page.metadata[page.filledBytes + index] = INT_TYPE;
+        page.filledBytes++;
+
+
+
+        int value = static_cast<int>(vRAM[address + index]);
+        oss << "Storing " << value
+            << " at 0x" << std::hex << (address + index)
+            << " (actual address: " << static_cast<void*>(&vRAM[address + index]) << ")";
+        SystemColors::PrintColored(oss.str().c_str(), YELLOW_DARK);
+
+        oss.str("");
+    }
     return 0;
 }
 
@@ -87,14 +130,37 @@ char *Memory::GetPageContent(size_t frame, int count)
 
     size_t beginAddress= GetFrameAddress(frame);
 
-    char* buffer = new char[count+1]();
+    std::ostringstream oss;
+    char* buffer = new char[count + 1]();
 
-    for(int index = 0; index < count && index < page.filledBytes; index++)
+    for (int index = 0; index < count && index < page.filledBytes; )
     {
-        buffer[index] = vRAM[beginAddress+index];
+        DataType type = page.metadata[index];
+
+        if (type == INT_TYPE)
+        {
+            int number = 0;
+            for (int i = 0; i < sizeof(int); i++)
+            {
+                number |= (vRAM[beginAddress + index + i] & 0xFF) << (i * 8);
+            }
+
+            oss  << number << " ";
+            index += sizeof(int);
+        }
+        else if (type == CHAR_TYPE)
+        {
+            oss << vRAM[beginAddress + index] << " ";
+            index += 1;
+        }
+        else
+        {
+            index += 1;
+        }
     }
 
-    buffer[count] = '\0';
+    std::string result = oss.str();
+    memcpy(buffer, result.c_str(), result.size());
 
     return buffer;
 }

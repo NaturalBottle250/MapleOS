@@ -3,24 +3,30 @@
 #include "../Components/Memory.h"
 #include <cstddef>
 #include "../Utilities/SystemColors.h"
-using std::cout, std::endl;
+#include "Interpreter.h"
+
+using namespace std;
 
 
 int main()
 {
-
+    Shell shell;
+    cout << sizeof(shell);
     const char *title = "MapleOS V0.1";
 
     Memory ram(2);
+    Interpreter intepreter;
 
     size_t page = ram.AllocatePage(1);
 
     cout << "\nGrabbed page " << page << endl;
 
+
     ram.StoreByte(page,'H');
     ram.StoreByte(page,'E');
     ram.StoreByte(page,'Y');
 
+    ram.StoreInt(page,-1);
 
     SystemColors::PrintColored("Printing from RAM: ", PINK_MAGENTA);
     SystemColors::PrintColored(ram.GetPageContent(page,20), RED);
@@ -30,3 +36,13 @@ int main()
     return 0;
 }
 
+const char* Shell::GetInput()
+{
+    cout << "$ ";
+
+
+    const char* s= "$$";
+
+
+    return s;
+}

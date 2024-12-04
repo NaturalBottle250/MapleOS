@@ -12,4 +12,5 @@ add_executable(MapleOS OS/Shell.cpp
         Components/Memory.cpp
         Components/Memory.h
         Utilities/SystemColors.cpp
-        Utilities/SystemColors.h)
+        Utilities/SystemColors.h
+        OS/Main.cpp)

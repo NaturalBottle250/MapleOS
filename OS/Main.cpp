@@ -7,7 +7,6 @@
 int main()
 {
     Shell shell;
-    cout << sizeof(shell);
     const char *title = "MapleOS V0.1";
 
     Memory ram(2);
@@ -15,7 +14,7 @@ int main()
 
     size_t page = ram.AllocatePage(1);
 
-    cout << "\nGrabbed page " << page << endl;
+    cout << "Grabbed page " << page << endl;
 
 
     ram.StoreByte(page,'H');
@@ -23,6 +22,7 @@ int main()
     ram.StoreByte(page,'Y');
 
     ram.StoreInt(page,-1);
+    ram.StoreByte(page,'Y');
 
     SystemColors::PrintColored("Printing from RAM: ", PINK_MAGENTA);
     SystemColors::PrintColored(ram.GetPageContent(page,20), RED);

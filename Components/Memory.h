@@ -6,12 +6,13 @@
 
 
 #define PAGE_COUNT 64
-#define RAM_SIZE_KB 20
+#define RAM_SIZE_KB 24
 #define MAX_RAM 1024
 #define PAGE_TABLE_SIZE sizeof(Page)*PAGE_COUNT
-//#define PAGE_SIZE (((RAM_SIZE_KB * 1024) - PAGE_TABLE_SIZE)/PAGE_COUNT)
 #define PAGE_SIZE 58
-#define ZERO_ADDRESS PAGE_TABLE_SIZE
+//#define ZERO_ADDRESS PAGE_TABLE_SIZE
+
+#define HEAP_START (ZERO_ADDRESS + (PAGE_COUNT * PAGE_SIZE))
 enum DataType
 {
     EMPTY_TYPE, CHAR_TYPE, INT_TYPE, FLOAT_TYPE, STRING_TYPE
@@ -25,6 +26,11 @@ struct Page
     DataType metadata[PAGE_SIZE];
 };
 
+struct HeapBlock
+{
+    size_t size, next;
+    bool isFree;
+};
 
 class Memory
 {
@@ -33,6 +39,7 @@ class Memory
     Page* pageTable;
 private:
 
+    int size, heapStart, zeroAddress = PAGE_TABLE_SIZE;
     size_t GetFrameAddress(size_t frame);
 
 public:
@@ -42,6 +49,7 @@ public:
     }
 
     int Initialize(int sizeKB);
+    int InitializeHeap(size_t heapSize);
     size_t AllocatePage(int pID);
 
     int StoreByte(size_t frame,char byte);

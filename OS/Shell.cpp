@@ -1,4 +1,5 @@
 #include <iostream>
+#include <cstring>
 #include "Shell.h"
 #include "../Components/Memory.h"
 #include <cstddef>
@@ -14,9 +15,15 @@ const char* Shell::GetInput()
 {
     cout << "$ ";
 
+    char* buffer = new char[101]();
 
-    const char* s= "$$";
+    string temp;
+
+    std::getline(std::cin, temp);
+
+    std::strcpy(buffer,temp.c_str());
 
 
-    return s;
+
+    return buffer;
 }

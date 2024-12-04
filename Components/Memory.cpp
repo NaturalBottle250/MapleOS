@@ -11,16 +11,15 @@ using std::cout, std::endl;
 int Memory::Initialize(int sizeKB)
 {
 
-    cout << "Page size " << PAGE_SIZE <<endl;
-    int size = sizeKB*1024;
-    HANDLE handle = GetStdHandle(STD_OUTPUT_HANDLE);
+    //cout << "Page size " << PAGE_SIZE <<endl;
+    size = sizeKB*1024;
     if(sizeKB > MAX_RAM)
     {
         return 1;
     }
     vRAM = (char*) malloc(size);
 
-    cout << sizeof(Page) << endl;
+    //cout << sizeof(Page) << endl;
 
 
     pageTable = (Page*) vRAM;
@@ -48,8 +47,18 @@ int Memory::Initialize(int sizeKB)
 
     oss.str("");
 
-    oss << "\nMemory of size " << size << " initiated at address: "<< &vRAM;
+    oss << "Memory of size " << size << " initiated at address: "<< &vRAM;
     SystemColors::PrintColored(oss.str().c_str(), BRIGHT_GREEN);
+    oss.str("");
+
+
+    heapStart = PAGE_TABLE_SIZE + (PAGE_COUNT * PAGE_SIZE);
+
+    size_t heapSize = size - heapStart;
+
+    InitializeHeap(heapSize);
+    oss << "Initialized heap of size " << heapSize << " starting at " << heapStart;
+    SystemColors::PrintColored(oss.str().c_str(), BRIGHT_WHITE);
 
     return 0;
 }
@@ -78,7 +87,7 @@ int Memory::StoreByte(size_t frame, char byte)
     page.metadata[page.filledBytes-1] = CHAR_TYPE;
 
     std::ostringstream oss;
-    oss << "Wrote value '" << byte << "' to address 0x" << std::hex <<address << std::dec
+    oss << "Wrote value '" << byte << "' to address " << address << std::dec
         << " (frame " << page.frame << ", offset " << page.filledBytes-1 << " at actual "<< static_cast<void*>(&vRAM[address])  <<")";
     SystemColors::PrintColored(oss.str().c_str(), BRIGHT_BLUE);
 
@@ -97,6 +106,9 @@ int Memory::StoreInt(size_t frame, int number)
 
     std::ostringstream oss;
 
+    oss << "Storing " << number << " at [" << address << " -> " << address + sizeof(int) - 1 << "]";
+    SystemColors::PrintColored(oss.str().c_str(), YELLOW_DARK);
+
     for(int index = 0; index < sizeof(number); index++)
     {
 
@@ -106,20 +118,15 @@ int Memory::StoreInt(size_t frame, int number)
 
 
 
-        int value = static_cast<int>(vRAM[address + index]);
-        oss << "Storing " << value
-            << " at 0x" << std::hex << (address + index)
-            << " (actual address: " << static_cast<void*>(&vRAM[address + index]) << ")";
-        SystemColors::PrintColored(oss.str().c_str(), YELLOW_DARK);
 
-        oss.str("");
+
     }
     return 0;
 }
 
 size_t Memory::GetFrameAddress(size_t frame)
 {
-    size_t start = ZERO_ADDRESS + (PAGE_SIZE * frame);
+    size_t start = zeroAddress + (PAGE_SIZE * frame);
 
     return start;
 }
@@ -163,4 +170,16 @@ char *Memory::GetPageContent(size_t frame, int count)
     memcpy(buffer, result.c_str(), result.size());
 
     return buffer;
+}
+
+int Memory::InitializeHeap(size_t heapSize)
+{
+
+    HeapBlock* initBlock = reinterpret_cast<HeapBlock *>(&vRAM[heapStart]);
+
+    initBlock->size = heapSize;
+    initBlock->isFree = false;
+    initBlock->next = 0;
+
+    return 0;
 }

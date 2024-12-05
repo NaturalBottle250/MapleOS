@@ -31,11 +31,18 @@ int Memory::Initialize(int sizeKB)
     size_t heapSize = size - heapStart;
 
     InitializeHeap(heapSize);
-    oss << "Initialized heap of size " << heapSize << " starting at " << heapStart;
+
+    oss << "Initialized heap of size " << heapSize << " starting at " << heapStart << endl;
     SystemColors::PrintColored(oss.str().c_str(), BRIGHT_WHITE);
 
     int* test = static_cast<int *>(malloc(sizeof(int)));
     char* a = static_cast<char *>(malloc(20));
+    PrintHeap();
+    cout<<"||||||||||||||||||\n";
+
+
+    free(test);
+    free(a);
     PrintHeap();
 
 
@@ -190,7 +197,7 @@ int Memory::InitializeHeap(size_t heapSize)
 
     auto initBlock = reinterpret_cast<HeapBlock *>(&vRAM[heapStart]);
 
-    initBlock->size = heapSize;
+    initBlock->size = heapSize - sizeof(HeapBlock);
     initBlock->isFree = true;
     initBlock->next = 0;
 
@@ -236,26 +243,52 @@ void* Memory::malloc(size_t size)
     return nullptr;
 }
 
-
-void Memory::PrintHeap()
+void Memory::free(void *pointer)
 {
-    size_t offset = heapStart;
+    if(pointer == nullptr) return;
 
-    while(offset < size)
+    size_t blockOffset = (char*)pointer - vRAM - sizeof(HeapBlock);
+
+    auto* targetBlock = (HeapBlock*)&vRAM[blockOffset];
+
+    targetBlock->isFree = true;
+
+    if(targetBlock->next >= size)
+        return;
+
+    auto* nextBlock = (HeapBlock*)&vRAM[targetBlock->next];
+
+    if(nextBlock->isFree)
     {
-        auto currentBlock = (HeapBlock*)&vRAM[offset];
-        cout << "---------\n";
-        cout<< "Heap Block\n" <<
-        "Size " << currentBlock->size <<
-        "\nisFree " << currentBlock->isFree <<
-        "\nNext " << currentBlock->next << endl;
-        cout << "---------\n";
+        targetBlock->size += nextBlock->size + sizeof(HeapBlock);
 
-
-
-        offset = currentBlock->next;
-        if(currentBlock->next == 0)
-            break;
+        targetBlock->next = nextBlock->next;
     }
 
+
+}
+
+void Memory::PrintHeap() {
+    size_t offset = heapStart;
+    size_t totalMemory = 0;
+
+    while (offset < size) {
+        auto* currentBlock = (HeapBlock*)&vRAM[offset];
+        size_t blockTotalSize = currentBlock->size + sizeof(HeapBlock);
+
+        cout << "---------\n";
+        cout << "Heap Block\n"
+             << "Size (user): " << currentBlock->size << "\n"
+             << "Total Size: " << blockTotalSize << "\n"
+             << "isFree: " << (currentBlock->isFree ? "True" : "False") << "\n"
+             << "Next: " << currentBlock->next << endl;
+        cout << "---------\n";
+
+        totalMemory += blockTotalSize;
+        offset = currentBlock->next;
+
+        if (currentBlock->next == 0) break;
+    }
+
+    cout << "Total Heap Size (including metadata): " << totalMemory << " bytes\n";
 }

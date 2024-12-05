@@ -1,10 +1,10 @@
 #include <iostream>
 #include <cstring>
-#include "Shell.h"
-#include "../Components/Memory.h"
+#include "OS/Shell.h"
+#include "../include/Memory.h"
 #include <cstddef>
-#include "../Utilities/SystemColors.h"
-#include "Interpreter.h"
+#include "../include/Utilities/SystemColors.h"
+#include "OS/Interpreter.h"
 
 using namespace std;
 

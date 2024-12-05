@@ -5,11 +5,16 @@
 #include <sstream>
 #include "Memory.h"
 #include <windows.h>//"
-#include "../Utilities/SystemColors.h"
+#include "Utilities/SystemColors.h"
 using std::cout, std::endl;
+
+Memory* Memory::instance = nullptr;
 
 int Memory::Initialize(int sizeKB)
 {
+    std::ostringstream oss;
+
+    cout << "Size of a heap block: " << sizeof(HeapBlock) << endl;
 
     //cout << "Page size " << PAGE_SIZE <<endl;
     size = sizeKB*1024;
@@ -17,7 +22,23 @@ int Memory::Initialize(int sizeKB)
     {
         return 1;
     }
-    vRAM = (char*) malloc(size);
+
+
+
+    heapStart = PAGE_TABLE_SIZE + (PAGE_COUNT * PAGE_SIZE);
+    vRAM = (char*) std::malloc(size);
+
+    size_t heapSize = size - heapStart;
+
+    InitializeHeap(heapSize);
+    oss << "Initialized heap of size " << heapSize << " starting at " << heapStart;
+    SystemColors::PrintColored(oss.str().c_str(), BRIGHT_WHITE);
+
+    int* test = static_cast<int *>(malloc(sizeof(int)));
+    char* a = static_cast<char *>(malloc(20));
+    PrintHeap();
+
+
 
     //cout << sizeof(Page) << endl;
 
@@ -41,7 +62,6 @@ int Memory::Initialize(int sizeKB)
     }
     cout << "Paged RAM: " << PAGE_COUNT * PAGE_SIZE <<"\n";
 
-    std::ostringstream oss;
     oss << "Initialized Page table with size " << PAGE_TABLE_SIZE;
     SystemColors::PrintColored(oss.str().c_str(), RED);
 
@@ -52,13 +72,6 @@ int Memory::Initialize(int sizeKB)
     oss.str("");
 
 
-    heapStart = PAGE_TABLE_SIZE + (PAGE_COUNT * PAGE_SIZE);
-
-    size_t heapSize = size - heapStart;
-
-    InitializeHeap(heapSize);
-    oss << "Initialized heap of size " << heapSize << " starting at " << heapStart;
-    SystemColors::PrintColored(oss.str().c_str(), BRIGHT_WHITE);
 
     return 0;
 }
@@ -175,11 +188,74 @@ char *Memory::GetPageContent(size_t frame, int count)
 int Memory::InitializeHeap(size_t heapSize)
 {
 
-    HeapBlock* initBlock = reinterpret_cast<HeapBlock *>(&vRAM[heapStart]);
+    auto initBlock = reinterpret_cast<HeapBlock *>(&vRAM[heapStart]);
 
     initBlock->size = heapSize;
-    initBlock->isFree = false;
+    initBlock->isFree = true;
     initBlock->next = 0;
 
     return 0;
+}
+
+void* Memory::malloc(size_t size)
+{
+    size_t offset = heapStart;
+
+
+    while (offset < this->size)
+    {
+        auto* currentBlock = (HeapBlock*)&vRAM[offset];
+
+
+        if (currentBlock->isFree && currentBlock->size >= size + sizeof(HeapBlock))
+        {
+            size_t newBlockOffset = size + sizeof(HeapBlock) + offset;
+            auto* newBlock = (HeapBlock*)&vRAM[newBlockOffset];
+
+            newBlock->isFree = true;
+            newBlock->size = currentBlock->size - size - sizeof(HeapBlock);
+            newBlock->next = 0;
+
+
+            currentBlock->size = size;
+            currentBlock->isFree = false;
+            currentBlock->next = offset + size + sizeof(HeapBlock);
+
+
+            return &vRAM[offset + sizeof(HeapBlock)];
+        }
+
+        offset = currentBlock->next;
+
+        if (offset == 0)
+        {
+            break;
+        }
+    }
+
+    return nullptr;
+}
+
+
+void Memory::PrintHeap()
+{
+    size_t offset = heapStart;
+
+    while(offset < size)
+    {
+        auto currentBlock = (HeapBlock*)&vRAM[offset];
+        cout << "---------\n";
+        cout<< "Heap Block\n" <<
+        "Size " << currentBlock->size <<
+        "\nisFree " << currentBlock->isFree <<
+        "\nNext " << currentBlock->next << endl;
+        cout << "---------\n";
+
+
+
+        offset = currentBlock->next;
+        if(currentBlock->next == 0)
+            break;
+    }
+
 }

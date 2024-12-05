@@ -6,7 +6,7 @@
 
 
 #define PAGE_COUNT 64
-#define RAM_SIZE_KB 24
+#define RAM_SIZE_KB 20
 #define MAX_RAM 1024
 #define PAGE_TABLE_SIZE sizeof(Page)*PAGE_COUNT
 #define PAGE_SIZE 58
@@ -39,21 +39,37 @@ class Memory
     Page* pageTable;
 private:
 
+    static Memory* instance;
     int size, heapStart, zeroAddress = PAGE_TABLE_SIZE;
     size_t GetFrameAddress(size_t frame);
 
-public:
-    Memory(int size)
+    explicit Memory(int size)
     {
         Initialize(RAM_SIZE_KB);
     }
 
+    void PrintHeap();
+
+public:
+
+    static Memory* GetInstance()
+    {
+        if (instance == nullptr)
+        {
+            instance = new Memory(RAM_SIZE_KB);
+        }
+        return instance;
+    }
     int Initialize(int sizeKB);
     int InitializeHeap(size_t heapSize);
     size_t AllocatePage(int pID);
 
+
     int StoreByte(size_t frame,char byte);
     int StoreInt(size_t frame, int number);
+
+    void* malloc(size_t size);
+    void free(void* pointer);
 
     char* GetPageContent(size_t frame, int count);
 

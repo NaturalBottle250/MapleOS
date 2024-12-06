@@ -6,7 +6,7 @@
 #include "../include/Utilities/SystemColors.h"
 #include "OS/Interpreter.h"
 #include "Utilities/MemoryUtils.h"
-
+#include "Utilities/SystemUtils.h"
 using namespace std;
 
 
@@ -16,16 +16,16 @@ const char* Shell::GetInput()
 {
     cout << "$ ";
 
-    char* buffer = new char[101]();
+    char* buffer = static_cast<char*>(mmalloc(101));
+    memset(buffer, '\0', 101);
+
+    cin.getline(buffer, 101);
+
+    //cout << buffer << endl;
 
 
-    string temp;
-
-    std::getline(std::cin, temp);
-
-    std::strcpy(buffer,temp.c_str());
-
-
+    //cout << GetNextToken(buffer,' ') << " " << GetNextToken(buffer,' ');
 
     return buffer;
 }
+

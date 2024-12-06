@@ -9,8 +9,10 @@ int main()
 {
     Memory* ram = Memory::GetInstance();
 
-    //Shell shell;
+    Shell shell;
     const char *title = "MapleOS V0.1";
+
+    shell.GetInput();
 
     //Memory ram(2);
     Interpreter intepreter;

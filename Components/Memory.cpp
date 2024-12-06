@@ -1,5 +1,5 @@
 //
-// Created by danie on 2024-12-02.
+// Created by Daniel Alzawahra on 2024-12-02.
 //
 #include <iostream>
 #include <sstream>
@@ -8,13 +8,12 @@
 #include "Utilities/SystemColors.h"
 using std::cout, std::endl;
 
-Memory* Memory::instance = nullptr;
+ Memory* Memory::instance = nullptr;
 
 int Memory::Initialize(int sizeKB)
 {
     std::ostringstream oss;
 
-    cout << "Size of a heap block: " << sizeof(HeapBlock) << endl;
 
     //cout << "Page size " << PAGE_SIZE <<endl;
     size = sizeKB*1024;
@@ -26,7 +25,9 @@ int Memory::Initialize(int sizeKB)
 
 
     heapStart = PAGE_TABLE_SIZE + (PAGE_COUNT * PAGE_SIZE);
+    cout << "Allocating Memory\n";
     vRAM = (char*) std::malloc(size);
+    cout << "Size of a heap block: " << sizeof(HeapBlock) << endl;
 
     size_t heapSize = size - heapStart;
 
@@ -35,15 +36,6 @@ int Memory::Initialize(int sizeKB)
     oss << "Initialized heap of size " << heapSize << " starting at " << heapStart << endl;
     SystemColors::PrintColored(oss.str().c_str(), BRIGHT_WHITE);
 
-    int* test = static_cast<int *>(malloc(sizeof(int)));
-    char* a = static_cast<char *>(malloc(20));
-    PrintHeap();
-    cout<<"||||||||||||||||||\n";
-
-
-    free(test);
-    free(a);
-    PrintHeap();
 
 
 
@@ -204,7 +196,7 @@ int Memory::InitializeHeap(size_t heapSize)
     return 0;
 }
 
-void* Memory::malloc(size_t size)
+void* Memory::malloc(size_t memorySize)
 {
     size_t offset = heapStart;
 
@@ -214,19 +206,19 @@ void* Memory::malloc(size_t size)
         auto* currentBlock = (HeapBlock*)&vRAM[offset];
 
 
-        if (currentBlock->isFree && currentBlock->size >= size + sizeof(HeapBlock))
+        if (currentBlock->isFree && currentBlock->size >= memorySize + sizeof(HeapBlock))
         {
-            size_t newBlockOffset = size + sizeof(HeapBlock) + offset;
+            size_t newBlockOffset = memorySize + sizeof(HeapBlock) + offset;
             auto* newBlock = (HeapBlock*)&vRAM[newBlockOffset];
 
             newBlock->isFree = true;
-            newBlock->size = currentBlock->size - size - sizeof(HeapBlock);
+            newBlock->size = currentBlock->size - memorySize - sizeof(HeapBlock);
             newBlock->next = 0;
 
 
-            currentBlock->size = size;
+            currentBlock->size = memorySize;
             currentBlock->isFree = false;
-            currentBlock->next = offset + size + sizeof(HeapBlock);
+            currentBlock->next = offset + memorySize + sizeof(HeapBlock);
 
 
             return &vRAM[offset + sizeof(HeapBlock)];

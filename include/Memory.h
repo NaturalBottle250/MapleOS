@@ -6,7 +6,7 @@
 
 
 #define PAGE_COUNT 64
-#define RAM_SIZE_KB 20
+#define RAM_SIZE_KB 24
 #define MAX_RAM 1024
 #define PAGE_TABLE_SIZE sizeof(Page)*PAGE_COUNT
 #define PAGE_SIZE 58
@@ -68,7 +68,7 @@ public:
     int StoreByte(size_t frame,char byte);
     int StoreInt(size_t frame, int number);
 
-    void* malloc(size_t size);
+    void* malloc(size_t memorySize);
     void free(void* pointer);
 
     char* GetPageContent(size_t frame, int count);

@@ -3,13 +3,15 @@
 #include "Memory.h"
 #include <cstddef>
 #include "Utilities/SystemColors.h"
+#include "Utilities/MemoryUtils.h"
 #include "OS/Interpreter.h"
 int main()
 {
-    Shell shell;
+    Memory* ram = Memory::GetInstance();
+
+    //Shell shell;
     const char *title = "MapleOS V0.1";
 
-    Memory* ram = Memory::GetInstance();
     //Memory ram(2);
     Interpreter intepreter;
 

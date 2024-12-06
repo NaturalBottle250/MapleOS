@@ -5,6 +5,7 @@
 #include <cstddef>
 #include "../include/Utilities/SystemColors.h"
 #include "OS/Interpreter.h"
+#include "Utilities/MemoryUtils.h"
 
 using namespace std;
 
@@ -16,6 +17,7 @@ const char* Shell::GetInput()
     cout << "$ ";
 
     char* buffer = new char[101]();
+
 
     string temp;
 

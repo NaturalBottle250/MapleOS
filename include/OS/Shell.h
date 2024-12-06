@@ -1,5 +1,5 @@
 
-
+#pragma once
 #ifndef MAPLEOS_SHELL_H
 #define MAPLEOS_SHELL_H
 #include <string>

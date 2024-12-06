@@ -4,13 +4,13 @@ project(MapleOS)
 set(CMAKE_CXX_STANDARD 17)
 include_directories(${CMAKE_SOURCE_DIR}/include)
 
-add_executable(MapleOS OS/Shell.cpp
+add_executable(MapleOS Components/Memory.cpp
+        OS/Shell.cpp
         OS/Interpreter.cpp
         include/OS/Interpreter.h
         include/OS/Shell.h
         OS/System.cpp
         include/OS/System.h
-        Components/Memory.cpp
         include/Memory.h
         Utilities/SystemColors.cpp
         include/Utilities/SystemColors.h

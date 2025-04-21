@@ -7,17 +7,19 @@
 #include "OS/Interpreter.h"
 int main()
 {
+    cout << "Hello World!" << endl;
     Memory* ram = Memory::GetInstance();
 
     Shell shell;
     const char *title = "MapleOS V0.1";
 
-    shell.GetInput();
+    //while (true)shell.GetInput();
 
     //Memory ram(2);
     Interpreter intepreter;
 
-    /*
+
+
     size_t page = ram->AllocatePage(1);
 
     cout << "Grabbed page " << page << endl;
@@ -33,8 +35,10 @@ int main()
     SystemColors::PrintColored("Printing from RAM: ", PINK_MAGENTA);
     SystemColors::PrintColored(ram->GetPageContent(page,20), RED);
 
-    cout << title;
+    cout << title << endl;
 
-     */
+    shell.DumpPages(4, false);
+
+
     return 0;
 }

@@ -5,7 +5,7 @@
 #define MAPLEOS_SYSTEMUTILS_H
 
 
-int CountTokens(const char* input, char regex)
+inline int CountTokens(const char* input, char regex)
 {
     int index = 0, count = 1;
     while(input[index] != '\0')
@@ -17,7 +17,11 @@ int CountTokens(const char* input, char regex)
 
     return count;
 }
-char* GetNextToken(const char* input, char regex)
+inline bool BufferEmpty(const char* buffer)
+{
+    return buffer[0] == '\0';
+}
+inline char* GetNextToken(const char* input, char regex)
 {
     static const char* currentPosition = nullptr;
 

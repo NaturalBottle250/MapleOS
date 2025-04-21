@@ -5,11 +5,14 @@
 #include <cstddef>
 
 
-#define PAGE_COUNT 64
-#define RAM_SIZE_KB 24
+#define RAM_SIZE_KB 2
 #define MAX_RAM 1024
-#define PAGE_TABLE_SIZE sizeof(Page)*PAGE_COUNT
-#define PAGE_SIZE 58
+
+#define PAGE_SIZE      16
+#define PAGE_COUNT     16
+#define PAGE_TABLE_SIZE    (PAGE_COUNT * sizeof(Page))
+
+
 //#define ZERO_ADDRESS PAGE_TABLE_SIZE
 
 #define HEAP_START (ZERO_ADDRESS + (PAGE_COUNT * PAGE_SIZE))
@@ -41,7 +44,7 @@ private:
 
     static Memory* instance;
     int size, heapStart, zeroAddress = PAGE_TABLE_SIZE;
-    size_t GetFrameAddress(size_t frame);
+    size_t GetFrameAddress(size_t frame) const;
 
     explicit Memory(int size)
     {
@@ -49,6 +52,7 @@ private:
     }
 
     void PrintHeap();
+    void PrintPage(int number, bool printEmpty);
 
 public:
 
@@ -72,6 +76,7 @@ public:
     void free(void* pointer);
 
     char* GetPageContent(size_t frame, int count);
+    void DumpPages(int count, bool printEmpty);
 
     void Reset();
 

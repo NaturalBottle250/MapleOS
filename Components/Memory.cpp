@@ -15,7 +15,7 @@ int Memory::Initialize(int sizeKB)
     std::ostringstream oss;
 
 
-    //cout << "Page size " << PAGE_SIZE <<endl;
+    cout << "Page size in table: " << sizeof(Page) <<endl;
     size = sizeKB*1024;
     if(sizeKB > MAX_RAM)
     {
@@ -26,6 +26,8 @@ int Memory::Initialize(int sizeKB)
 
     heapStart = PAGE_TABLE_SIZE + (PAGE_COUNT * PAGE_SIZE);
     cout << "Allocating Memory\n";
+    cout << "Page Table size: " << heapStart << endl;
+    cout << "Heap Start: " << heapStart << endl;
     vRAM = (char*) std::malloc(size);
     cout << "Size of a heap block: " << sizeof(HeapBlock) << endl;
 
@@ -62,7 +64,7 @@ int Memory::Initialize(int sizeKB)
     cout << "Paged RAM: " << PAGE_COUNT * PAGE_SIZE <<"\n";
 
     oss << "Initialized Page table with size " << PAGE_TABLE_SIZE;
-    SystemColors::PrintColored(oss.str().c_str(), RED);
+    SystemColors::PrintColored(oss.str().c_str(), BRIGHT_BLUE);
 
     oss.str("");
 
@@ -118,8 +120,8 @@ int Memory::StoreInt(size_t frame, int number)
 
     std::ostringstream oss;
 
-    oss << "Storing " << number << " at [" << address << " -> " << address + sizeof(int) - 1 << "]";
-    SystemColors::PrintColored(oss.str().c_str(), YELLOW_DARK);
+    oss << "Wrote value [" << number << "] at [" << address << " -> " << address + sizeof(int) - 1 << "]";
+    oss << " (frame " << page.frame << ", offset " << page.filledBytes << " at actual "<< static_cast<void*>(&vRAM[address])  <<")";
 
     for(int index = 0; index < sizeof(number); index++)
     {
@@ -127,16 +129,14 @@ int Memory::StoreInt(size_t frame, int number)
         vRAM[address+index] = (number >> (index * 8)) & 0xFF;
         page.metadata[page.filledBytes + index] = INT_TYPE;
         page.filledBytes++;
-
-
-
-
-
     }
+
+    SystemColors::PrintColored(oss.str().c_str(), YELLOW_DARK);
+
     return 0;
 }
 
-size_t Memory::GetFrameAddress(size_t frame)
+size_t Memory::GetFrameAddress(size_t frame) const
 {
     size_t start = zeroAddress + (PAGE_SIZE * frame);
 
@@ -183,6 +183,8 @@ char *Memory::GetPageContent(size_t frame, int count)
 
     return buffer;
 }
+
+
 
 int Memory::InitializeHeap(size_t heapSize)
 {
@@ -260,7 +262,8 @@ void Memory::free(void *pointer)
 
 }
 
-void Memory::PrintHeap() {
+void Memory::PrintHeap()
+{
     size_t offset = heapStart;
     size_t totalMemory = 0;
 
@@ -283,4 +286,49 @@ void Memory::PrintHeap() {
     }
 
     cout << "Total Heap Size (including metadata): " << totalMemory << " bytes\n";
+}
+
+
+void Memory::DumpPages(int count, bool printEmpty)
+{
+    int counter = count;
+    if (count > PAGE_COUNT) count = PAGE_COUNT;
+    if (count == 0)
+    {
+        counter = PAGE_COUNT;
+    }
+    for (int index = 0; index < counter; index++)
+    {
+        PrintPage(index, printEmpty);
+    }
+
+
+}
+
+
+void Memory::PrintPage(int number, bool printEmpty)
+{
+    const Page& p = pageTable[number];
+    bool isEmpty = (p.pID == -1);
+
+    if (!isEmpty || (isEmpty && printEmpty))
+    {
+        cout << "Printing page " << number << "\n"
+             << "-----------------\n";
+
+        if (!isEmpty)
+        {
+            cout << "frame = "     << p.frame       << "\n"
+                 << "pid = "       << p.pID        << "\n"
+                 << "used = "      << p.filledBytes<< "\n"
+                 << "R = "         << p.read        << "\n"
+                 << "W = "         << p.write       << "\n";
+        }
+        else
+        {
+            cout << "Page is not being used\n";
+        }
+
+        cout << "-----------------\n";
+    }
 }

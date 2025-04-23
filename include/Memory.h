@@ -5,7 +5,7 @@
 #include <cstddef>
 
 
-#define RAM_SIZE_KB 2
+#define RAM_SIZE_KB 4
 #define MAX_RAM 1024
 
 #define PAGE_SIZE      16
@@ -51,7 +51,6 @@ private:
         Initialize(RAM_SIZE_KB);
     }
 
-    void PrintHeap();
     void PrintPage(int number, bool printEmpty);
 
 public:
@@ -68,6 +67,7 @@ public:
     int InitializeHeap(size_t heapSize);
     size_t AllocatePage(int pID);
 
+    void PrintHeap();
 
     int StoreByte(size_t frame,char byte);
     int StoreInt(size_t frame, int number);
@@ -77,6 +77,8 @@ public:
 
     char* GetPageContent(size_t frame, int count);
     void DumpPages(int count, bool printEmpty);
+
+    int GetFreeBytes();
 
     void Reset();
 

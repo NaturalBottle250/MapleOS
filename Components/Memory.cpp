@@ -29,6 +29,7 @@ int Memory::Initialize(int sizeKB)
     cout << "Page Table size: " << heapStart << endl;
     cout << "Heap Start: " << heapStart << endl;
     vRAM = (char*) std::malloc(size);
+    memset(vRAM, 0, size);
     cout << "Size of a heap block: " << sizeof(HeapBlock) << endl;
 
     size_t heapSize = size - heapStart;
@@ -273,7 +274,7 @@ void Memory::PrintHeap()
 
         cout << "---------\n";
         cout << "Heap Block\n"
-             << "Size (user): " << currentBlock->size << "\n"
+             << "Usable size: " << currentBlock->size << "\n"
              << "Total Size: " << blockTotalSize << "\n"
              << "isFree: " << (currentBlock->isFree ? "True" : "False") << "\n"
              << "Next: " << currentBlock->next << endl;
@@ -303,6 +304,15 @@ void Memory::DumpPages(int count, bool printEmpty)
     }
 
 
+}
+
+int Memory::GetFreeBytes()
+{
+    int counter;
+    for (int index = heapStart; index < size; index++)
+    {
+
+    }
 }
 
 

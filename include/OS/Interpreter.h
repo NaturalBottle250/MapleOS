@@ -6,7 +6,7 @@
 #include <unordered_map>
 #include <functional>
 using namespace std;
-//Thanks, Mr. Jonathan Campbell<3
+//Thanks to Mr.Jonathan Campbell
 enum Error
 {
     NO_ERROR,
@@ -19,8 +19,8 @@ enum Error
     TOO_FEW_TOKENS,
     NON_ALPHANUMERIC_TOKEN,
     BAD_COMMAND,
-    ERROR_CD,
-    ERROR_MKDIR,
+    COMMAND_EXECUTION_ERROR,
+    COMMAND_NOT_FOUND,
 };
 
 
@@ -30,9 +30,10 @@ class Interpreter
 
     struct CommandInfo
     {
+        char name[16];
         CommandFunction function;
         size_t minArgs, maxArgs;
-        string description;
+        char description[121];
     };
 
     unordered_map<string, CommandInfo> commands;
@@ -43,8 +44,9 @@ class Interpreter
 
 public:
     Interpreter();
-    int help();
-    int ParseInput(const string& input);
+    ~Interpreter();
+    void help();
+    void Execute(const vector<string>& tokens);
 
 };
 

@@ -13,9 +13,14 @@ using namespace std;
 Shell::Shell()
 {
     this->memory = Memory::GetInstance();
+    currentTokens = nullptr;
+
+    interpreter = static_cast<Interpreter*>(mmalloc(sizeof(Interpreter)));
+    cout << "Size of interpreter: " << sizeof(Interpreter) << endl;
+    new(interpreter) Interpreter();
 }
 
-const char* Shell::GetInput()
+char* Shell::GetInput()
 {
     cout << "$>";
 
@@ -37,8 +42,8 @@ const char* Shell::GetInput()
     // }
     // cout << endl;
 
-    PrintBuffer(buffer);
-    mfree(buffer);
+    //PrintBuffer(buffer);
+    //mfree(buffer);
 
     return buffer;
 }
@@ -56,6 +61,7 @@ size_t Shell::ReadLine(char* buffer, size_t size)
     }
     buffer[index] = '\0';
 
+    //Clear overflow
     if (currentCharacter != '\n' && currentCharacter != EOF)
     {
         int c;
@@ -70,6 +76,32 @@ void Shell::DumpPages(int count, bool printEmpty)
     memory->DumpPages(count, printEmpty);
 }
 
+void Shell::ProcessInput(char* buffer, char delimiter)
+{
+
+    TokenList * tokens = TokenizeInput(buffer, delimiter);
+
+    for (int index = 0; index < tokens->count; index++)
+    {
+        cout << tokens->tokens[index] << endl;
+    }
+
+    /*
+    for (int index = 0; index < tokens->count; index++)
+    {
+        mfree(tokens->tokens[index]);
+    }
+    mfree(tokens->tokens);
+
+    mfree(tokens);
+    */
+    tokens->~TokenList();
+    mfree(tokens);
+
+
+    mfree(buffer);
+}
+
 
 const void Shell::PrintBuffer(const char* buffer)
 {
@@ -79,4 +111,51 @@ const void Shell::PrintBuffer(const char* buffer)
         cout << index << " --> " << "'" << buffer[index] << "'" << endl;;
         index++;
     }
+}
+Shell::~Shell()
+{
+    if (interpreter)
+    {
+        interpreter->~Interpreter();
+        mfree(interpreter);
+        interpreter = nullptr;
+    }
+
+}
+
+TokenList* Shell::TokenizeInput(char *buffer, char delimiter)
+{
+
+    size_t spaceCount = 0, index = 0;
+
+    while (buffer[index] != '\0' && buffer[index] != '\n')
+    {
+        if (buffer[index++] == delimiter) spaceCount++;
+    }
+    cout << "Space count: " << spaceCount << endl;
+
+    spaceCount++;
+
+    char** tokens = static_cast<char**>(mmalloc(sizeof(char*) * spaceCount ));
+
+    char* scanner = buffer;
+
+    index = 0;
+
+    char* token = GetNextToken(scanner, delimiter);
+
+    while (token && index < spaceCount)
+    {
+        size_t tokenLength = strlen(token);
+        char* copyToken = static_cast<char*>(mmalloc(tokenLength+1));
+        memcpy(copyToken, token, tokenLength+1);
+        mfree(token);
+
+        tokens[index++] = copyToken;
+        token = GetNextToken(nullptr, delimiter);
+    }
+
+    TokenList* tokenList = new (mmalloc(sizeof(TokenList))) TokenList{tokens, spaceCount};
+
+    return tokenList;
 }

@@ -10,16 +10,26 @@ int main()
     cout << "Hello World!" << endl;
     Memory* ram = Memory::GetInstance();
 
-    Shell shell;
+    void* shellMemory = mmalloc(sizeof(Shell));
+    Shell* shell = new(shellMemory) Shell();
+
+    cout << "----------------" << endl;
     const char *title = "MapleOS V0.1";
+    cout << title << endl;
+
+    //while (true){}
+    char *input = shell->GetInput();
+    shell->ProcessInput(input, ' ');
+
 
     //while (true)shell.GetInput();
 
     //Memory ram(2);
-    Interpreter intepreter;
+    //Interpreter intepreter;
 
 
 
+    /*
     size_t page = ram->AllocatePage(1);
 
     cout << "Grabbed page " << page << endl;
@@ -37,7 +47,13 @@ int main()
 
     cout << title << endl;
 
-    shell.DumpPages(4, false);
+    shell->DumpPages(4, false);
+
+    */
+    shell->~Shell();
+    mfree(shellMemory);
+
+    ram->PrintHeap();
 
 
     return 0;

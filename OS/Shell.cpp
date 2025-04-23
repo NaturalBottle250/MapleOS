@@ -7,6 +7,7 @@
 #include "OS/Interpreter.h"
 #include "Utilities/MemoryUtils.h"
 #include "Utilities/SystemUtils.h"
+#include "Utilities/TokenList.h"
 using namespace std;
 
 
@@ -83,7 +84,7 @@ void Shell::ProcessInput(char* buffer, char delimiter)
 
     for (int index = 0; index < tokens->count; index++)
     {
-        cout << tokens->tokens[index] << endl;
+        //cout << tokens->tokens[index] << endl;
     }
 
     /*
@@ -95,6 +96,7 @@ void Shell::ProcessInput(char* buffer, char delimiter)
 
     mfree(tokens);
     */
+    interpreter->InterpretCommand(*tokens);
     tokens->~TokenList();
     mfree(tokens);
 

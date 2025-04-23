@@ -6,19 +6,7 @@
 #include "Utilities/MemoryUtils.h"
 class Interpreter;
 
-struct TokenList
-{
-    char** tokens;
-    size_t count;
-
-    ~TokenList()
-    {
-        for (int index = 0; index < count; index++)
-            mfree(tokens[index]);
-
-        mfree(tokens);
-    }
-};
+class  TokenList;
 class Shell
 {
 

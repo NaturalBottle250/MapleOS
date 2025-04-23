@@ -5,6 +5,8 @@
 #include <vector>
 #include <unordered_map>
 #include <functional>
+
+#include "Utilities/Commands/Command.h"
 using namespace std;
 //Thanks to Mr.Jonathan Campbell
 enum Error
@@ -23,9 +25,19 @@ enum Error
     COMMAND_NOT_FOUND,
 };
 
+struct TokenList;
+
+
+struct CommandNode
+{
+    Command* command;
+    CommandNode* next;
+};
+
 
 class Interpreter
 {
+    CommandNode* head = nullptr;
     using CommandFunction = function<void(const vector<string>& args)>;
 
     struct CommandInfo
@@ -38,8 +50,6 @@ class Interpreter
 
     unordered_map<string, CommandInfo> commands;
 
-    void RegisterCommand(const string& name, CommandFunction function,
-        size_t minArgs, size_t maxArgs, string description);
 
 
 public:
@@ -47,6 +57,12 @@ public:
     ~Interpreter();
     void help();
     void Execute(const vector<string>& tokens);
+
+    void RegisterCommands();
+    void RegisterCommand(Command* command);
+
+    Error InterpretCommand(TokenList& tokens);
+
 
 };
 

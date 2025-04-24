@@ -53,7 +53,7 @@ int main()
     shell->~Shell();
     mfree(shellMemory);
 
-    ram->PrintHeap();
+    //ram->PrintHeap();
 
 
     return 0;

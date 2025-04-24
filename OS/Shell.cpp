@@ -82,20 +82,6 @@ void Shell::ProcessInput(char* buffer, char delimiter)
 
     TokenList * tokens = TokenizeInput(buffer, delimiter);
 
-    for (int index = 0; index < tokens->count; index++)
-    {
-        //cout << tokens->tokens[index] << endl;
-    }
-
-    /*
-    for (int index = 0; index < tokens->count; index++)
-    {
-        mfree(tokens->tokens[index]);
-    }
-    mfree(tokens->tokens);
-
-    mfree(tokens);
-    */
     interpreter->InterpretCommand(*tokens);
     tokens->~TokenList();
     mfree(tokens);
@@ -105,7 +91,7 @@ void Shell::ProcessInput(char* buffer, char delimiter)
 }
 
 
-const void Shell::PrintBuffer(const char* buffer)
+void Shell::PrintBuffer(const char* buffer)
 {
     int index = 0;
     while (buffer[index] != '\0')
@@ -134,8 +120,9 @@ TokenList* Shell::TokenizeInput(char *buffer, char delimiter)
     {
         if (buffer[index++] == delimiter) spaceCount++;
     }
-    cout << "Space count: " << spaceCount << endl;
+    //cout << "Space count: " << spaceCount << endl;
 
+    //spaceCount + 1 is token count
     spaceCount++;
 
     char** tokens = static_cast<char**>(mmalloc(sizeof(char*) * spaceCount ));

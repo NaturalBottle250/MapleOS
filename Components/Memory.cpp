@@ -251,6 +251,8 @@ void Memory::free(void *pointer)
     if(targetBlock->next >= size)
         return;
 
+
+    // Merge with next block if possible
     auto* nextBlock = (HeapBlock*)&vRAM[targetBlock->next];
 
     if(nextBlock->isFree)
@@ -258,6 +260,27 @@ void Memory::free(void *pointer)
         targetBlock->size += nextBlock->size + sizeof(HeapBlock);
 
         targetBlock->next = nextBlock->next;
+    }
+    //-------------------------------------
+
+    //Merge back too
+    size_t backOffset = heapStart;
+    while (backOffset < this->size)
+    {
+        auto* currentBlock = (HeapBlock*)&vRAM[backOffset];
+        if (currentBlock->next == blockOffset)
+        {
+            if (currentBlock->isFree)
+            {
+                currentBlock->size += targetBlock->size + sizeof(HeapBlock);
+                currentBlock->next = targetBlock->next;
+            }
+
+            break;
+        }
+        backOffset = currentBlock->next;
+
+
     }
 
 

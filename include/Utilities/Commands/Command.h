@@ -23,7 +23,7 @@ class Command
     virtual size_t minArgs() const = 0;
     virtual size_t maxArgs() const = 0;
 
-    virtual void execute(const TokenList &tokens) = 0;
+    virtual void Execute(const TokenList &tokens) = 0;
 };
 
 

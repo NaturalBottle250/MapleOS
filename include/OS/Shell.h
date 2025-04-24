@@ -16,7 +16,7 @@ public:
     int id;
     char* GetInput();
     size_t ReadLine(char* buffer, size_t size);
-    const void PrintBuffer(const char* buffer);
+    void PrintBuffer(const char* buffer);
     void DumpPages(int count = 0, bool printEmpty = false);
     void ProcessInput(char* buffer, char delimiter);
 

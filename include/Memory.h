@@ -37,24 +37,11 @@ struct HeapBlock
 
 class Memory
 {
-
-    char* vRAM;
-    Page* pageTable;
-private:
-
-    static Memory* instance;
-    int size, heapStart, zeroAddress = PAGE_TABLE_SIZE;
-    size_t GetFrameAddress(size_t frame) const;
-
-    explicit Memory(int size)
-    {
-        Initialize(RAM_SIZE_KB);
-    }
-
-    void PrintPage(int number, bool printEmpty);
-
 public:
-
+    /**
+     * @brief Gets an Instance of the Memory Singleton
+     * @return The same pointer to Memory, for all calls
+     */
     static Memory* GetInstance()
     {
         if (instance == nullptr)
@@ -63,6 +50,7 @@ public:
         }
         return instance;
     }
+    
     int Initialize(int sizeKB);
     int InitializeHeap(size_t heapSize);
     size_t AllocatePage(int pID);
@@ -81,6 +69,22 @@ public:
     int GetFreeBytes();
 
     void Reset();
+
+    char* vRAM;
+    Page* pageTable;
+    static Memory* instance;
+    int size, heapStart, zeroAddress = PAGE_TABLE_SIZE;
+
+    size_t GetFrameAddress(size_t frame) const;
+
+    explicit Memory(int size)
+    {
+        Initialize(RAM_SIZE_KB);
+    }
+
+    void PrintPage(int number, bool printEmpty);
+
+
 
 };
 

@@ -28,6 +28,14 @@ enum Error
 struct TokenList;
 
 
+struct VariableEntry
+{
+    char * name;
+    char* value;
+    VariableEntry* next;
+};
+
+
 struct CommandNode
 {
     Command* command;
@@ -37,7 +45,8 @@ struct CommandNode
 
 class Interpreter
 {
-    CommandNode* head = nullptr;
+
+
     using CommandFunction = function<void(const vector<string>& args)>;
 
     struct CommandInfo
@@ -53,6 +62,10 @@ class Interpreter
 
 
 public:
+
+    CommandNode* head = nullptr;
+    VariableEntry* variables = nullptr;
+
     Interpreter();
     ~Interpreter();
     void help();
@@ -62,6 +75,8 @@ public:
     void RegisterCommand(Command* command);
 
     Error InterpretCommand(TokenList& tokens);
+
+    const char* FindVariable(const char* name) const;
 
 
 };

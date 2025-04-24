@@ -21,7 +21,7 @@ public:
     size_t minArgs() const override { return 1; }
     size_t maxArgs() const override { return 99; }
 
-    void execute(const TokenList& tokens) override
+    void Execute(const TokenList& tokens) override
     {
         for (size_t index = 1; index < tokens.count; ++index)
             std::cout << tokens.tokens[index] << ' ';

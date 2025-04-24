@@ -5,6 +5,7 @@
 #include <string.h>
 
 #include "Utilities/Commands/EchoCommand.h"
+#include "Utilities/Commands/StoreCommand.h"
 
 using namespace std;
 
@@ -20,6 +21,21 @@ Interpreter::Interpreter()
 
 Interpreter::~Interpreter()
 {
+    //Destroy Variables
+    VariableEntry* currentVariable = variables;
+    while (currentVariable)
+    {
+        VariableEntry* next = currentVariable->next;
+
+        mfree(currentVariable->name);
+        mfree(currentVariable->value);
+
+        currentVariable->~VariableEntry();
+
+        mfree(currentVariable);
+        currentVariable = next;
+    }
+    //Destroy Commands
     CommandNode* currentNode = head;
     while (currentNode)
     {
@@ -42,6 +58,10 @@ void Interpreter::RegisterCommands()
     Command* echoCommand = new(echoMemory) EchoCommand();
     RegisterCommand(echoCommand);
 
+    //STORE
+    void* storeMemory = mmalloc(sizeof(StoreCommand));
+    Command* storeCommand = new (storeMemory) StoreCommand(this);
+    RegisterCommand(storeCommand);
 }
 
 void Interpreter::RegisterCommand(Command *command)
@@ -66,7 +86,7 @@ Error Interpreter::InterpretCommand(TokenList &tokens)
                 return TOO_FEW_TOKENS;
 
 
-            command->execute(tokens);
+            command->Execute(tokens);
 
         }
     }

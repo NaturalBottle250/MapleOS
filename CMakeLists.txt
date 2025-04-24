@@ -20,4 +20,6 @@ add_executable(MapleOS Components/Memory.cpp
         include/Utilities/Commands/Command.h
         include/Utilities/TokenList.h
         include/Utilities/Commands/EchoCommand.h
+        Utilities/Commands/StoreCommand.cpp
+        include/Utilities/Commands/StoreCommand.h
 )

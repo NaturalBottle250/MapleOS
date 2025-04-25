@@ -9,16 +9,17 @@ class Interpreter;
 class  TokenList;
 class Shell
 {
-
+    char* buffer;
     Interpreter* interpreter;
+    size_t bufferSize;
 public:
-    Shell();
+    Shell(size_t bufferSize);
     int id;
-    char* GetInput();
-    size_t ReadLine(char* buffer, size_t size);
+    void GetInput();
+    size_t ReadLine(size_t size);
     void PrintBuffer(const char* buffer);
     void DumpPages(int count = 0, bool printEmpty = false);
-    void ProcessInput(char* buffer, char delimiter);
+    void ProcessInput(char delimiter);
 
 
     ~Shell();
@@ -26,7 +27,7 @@ public:
 private:
     class Memory* memory;
     TokenList* currentTokens;
-    TokenList* TokenizeInput(char* buffer, char delimiter);
+    TokenList* TokenizeInput(char delimiter);
 
     void PeekMemory();
 

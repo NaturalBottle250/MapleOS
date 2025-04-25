@@ -22,4 +22,8 @@ add_executable(MapleOS Components/Memory.cpp
         include/Utilities/Commands/EchoCommand.h
         Utilities/Commands/StoreCommand.cpp
         include/Utilities/Commands/StoreCommand.h
+        Utilities/Commands/ResetCommand.cpp
+        include/Utilities/Commands/ResetCommand.h
+        Utilities/Commands/DumpVarsCommand.cpp
+        include/Utilities/Commands/DumpVarsCommand.h
 )

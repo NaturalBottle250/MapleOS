@@ -15,7 +15,9 @@ inline void* mmalloc(size_t size)
 {
     //std::cout << "malloc called with size: " << size << "\n";
 
-    return Memory::GetInstance()->malloc(size);
+    Memory* ram = Memory::GetInstance();
+
+    return ram->malloc(size);
 }
 
 _Function_class_(FREE)

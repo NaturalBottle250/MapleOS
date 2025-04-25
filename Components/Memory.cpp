@@ -203,95 +203,80 @@ void* Memory::malloc(size_t memorySize)
 {
     size_t offset = heapStart;
 
-
-    while (offset < this->size)
+    while (offset != 0)
     {
-        auto* currentBlock = (HeapBlock*)&vRAM[offset];
-
+        auto* currentBlock = reinterpret_cast<HeapBlock*>(&vRAM[offset]);
 
         if (currentBlock->isFree && currentBlock->size >= memorySize + sizeof(HeapBlock))
         {
-            size_t newBlockOffset = memorySize + sizeof(HeapBlock) + offset;
-            auto* newBlock = (HeapBlock*)&vRAM[newBlockOffset];
+            size_t leftover = currentBlock->size - memorySize - sizeof(HeapBlock);
+            if (leftover > 0)
+            {
+                size_t newOffset = offset + sizeof(HeapBlock) + memorySize;
+                auto* newBlock = reinterpret_cast<HeapBlock*>(&vRAM[newOffset]);
 
-            newBlock->isFree = true;
-            newBlock->size = currentBlock->size - memorySize - sizeof(HeapBlock);
-            newBlock->next = 0;
+                newBlock->isFree = true;
+                newBlock->size   = leftover;
+                newBlock->next   = currentBlock->next;
 
-
-            currentBlock->size = memorySize;
-            currentBlock->isFree = false;
-            currentBlock->next = offset + memorySize + sizeof(HeapBlock);
-
+                currentBlock->size      = memorySize;
+                currentBlock->isFree    = false;
+                currentBlock->next      = newOffset;
+            }
+            else
+                currentBlock->isFree = false;
 
             return &vRAM[offset + sizeof(HeapBlock)];
         }
 
         offset = currentBlock->next;
-
-        if (offset == 0)
-        {
-            break;
-        }
     }
 
     return nullptr;
 }
 
-void Memory::free(void *pointer)
+
+void Memory::free(void* pointer)
 {
-    if(pointer == nullptr) return;
-
-    size_t blockOffset = (char*)pointer - vRAM - sizeof(HeapBlock);
-
-    auto* targetBlock = (HeapBlock*)&vRAM[blockOffset];
-
+    if (!pointer) return;
+    size_t offset = static_cast<char*>(pointer) - vRAM - sizeof(HeapBlock);
+    auto* targetBlock = reinterpret_cast<HeapBlock*>(&vRAM[offset]);
     targetBlock->isFree = true;
 
-    if(targetBlock->next >= size)
-        return;
-
-
-    // Merge with next block if possible
-    auto* nextBlock = (HeapBlock*)&vRAM[targetBlock->next];
-
-    if(nextBlock->isFree)
+    // Merge with the next block
+    if (targetBlock->next)
     {
-        targetBlock->size += nextBlock->size + sizeof(HeapBlock);
-
-        targetBlock->next = nextBlock->next;
-    }
-    //-------------------------------------
-
-    //Merge back too
-    size_t backOffset = heapStart;
-    while (backOffset < this->size)
-    {
-        auto* currentBlock = (HeapBlock*)&vRAM[backOffset];
-        if (currentBlock->next == blockOffset)
+        auto* nextBlock = reinterpret_cast<HeapBlock*>(&vRAM[targetBlock->next]);
+        if (nextBlock->isFree)
         {
-            if (currentBlock->isFree)
-            {
-                currentBlock->size += targetBlock->size + sizeof(HeapBlock);
-                currentBlock->next = targetBlock->next;
-            }
+            targetBlock->size += sizeof(HeapBlock) + nextBlock->size;
+            targetBlock->next  = nextBlock->next;
+        }
+    }
 
+    // Merge with the previous block
+    size_t scanOffset = heapStart;
+    while (scanOffset)
+    {
+        auto* currentBlock = reinterpret_cast<HeapBlock*>(&vRAM[scanOffset]);
+        if (currentBlock->next == offset && currentBlock->isFree)
+        {
+            currentBlock->size += sizeof(HeapBlock) + targetBlock->size;
+            currentBlock->next  = targetBlock->next;
             break;
         }
-        backOffset = currentBlock->next;
-
-
+        scanOffset = currentBlock->next;
     }
-
-
 }
+
 
 void Memory::PrintHeap()
 {
     size_t offset = heapStart;
-    size_t totalMemory = 0;
+    size_t totalMemory = 0, freeMemory = 0;
 
-    while (offset < size) {
+    while (offset < size)
+    {
         auto* currentBlock = (HeapBlock*)&vRAM[offset];
         size_t blockTotalSize = currentBlock->size + sizeof(HeapBlock);
 
@@ -304,12 +289,14 @@ void Memory::PrintHeap()
         cout << "---------\n";
 
         totalMemory += blockTotalSize;
+        if (currentBlock->isFree) freeMemory += blockTotalSize;
         offset = currentBlock->next;
 
         if (currentBlock->next == 0) break;
     }
 
     cout << "Total Heap Size (including metadata): " << totalMemory << " bytes\n";
+    cout << "Free Heap Size: " << freeMemory - sizeof(HeapBlock) << " bytes\n";
 }
 
 

@@ -11,8 +11,10 @@
 using namespace std;
 
 
-Shell::Shell()
+Shell::Shell(size_t bufferSize)
 {
+    this->bufferSize = bufferSize;
+    buffer = buffer = static_cast<char*>(mmalloc(bufferSize));
     this->memory = Memory::GetInstance();
     currentTokens = nullptr;
 
@@ -21,15 +23,14 @@ Shell::Shell()
     new(interpreter) Interpreter();
 }
 
-char* Shell::GetInput()
+void Shell::GetInput()
 {
     cout << "$>";
 
-    char* buffer = static_cast<char*>(mmalloc(101));
-    memset(buffer, '\0', 101);
+    memset(buffer, '\0', bufferSize);
 
     //cin.getline(buffer, 101);
-    ReadLine(buffer, 101);
+    ReadLine(bufferSize);
 
     //cout << buffer << endl;
 
@@ -46,10 +47,9 @@ char* Shell::GetInput()
     //PrintBuffer(buffer);
     //mfree(buffer);
 
-    return buffer;
 }
 
-size_t Shell::ReadLine(char* buffer, size_t size)
+size_t Shell::ReadLine(size_t size)
 {
     size_t index = 0;
     int  currentCharacter = 0;
@@ -77,17 +77,23 @@ void Shell::DumpPages(int count, bool printEmpty)
     memory->DumpPages(count, printEmpty);
 }
 
-void Shell::ProcessInput(char* buffer, char delimiter)
+void Shell::ProcessInput(char delimiter)
 {
 
-    TokenList * tokens = TokenizeInput(buffer, delimiter);
+    GetInput();
+    TokenList* tokens = TokenizeInput(delimiter);
+
+    cout << tokens->count << endl;
 
     interpreter->InterpretCommand(*tokens);
+
+
     tokens->~TokenList();
     mfree(tokens);
 
 
-    mfree(buffer);
+    //mfree(buffer);
+    memset(buffer, '\0', bufferSize);
 }
 
 
@@ -111,7 +117,7 @@ Shell::~Shell()
 
 }
 
-TokenList* Shell::TokenizeInput(char *buffer, char delimiter)
+TokenList* Shell::TokenizeInput(char delimiter)
 {
 
     size_t spaceCount = 0, index = 0;
@@ -135,6 +141,7 @@ TokenList* Shell::TokenizeInput(char *buffer, char delimiter)
 
     while (token && index < spaceCount)
     {
+        //cout << "Token: " << token << endl;
         size_t tokenLength = strlen(token);
         char* copyToken = static_cast<char*>(mmalloc(tokenLength+1));
         memcpy(copyToken, token, tokenLength+1);
@@ -144,7 +151,13 @@ TokenList* Shell::TokenizeInput(char *buffer, char delimiter)
         token = GetNextToken(nullptr, delimiter);
     }
 
-    TokenList* tokenList = new (mmalloc(sizeof(TokenList))) TokenList{tokens, spaceCount};
+
+    //memory->PrintHeap();
+    void* memoryPointer =mmalloc(sizeof(TokenList));
+    if (memoryPointer == nullptr)
+        cout << "Memory pointer is null" << endl;
+
+    TokenList* tokenList = new (memoryPointer) TokenList{tokens, spaceCount};
 
     return tokenList;
 }

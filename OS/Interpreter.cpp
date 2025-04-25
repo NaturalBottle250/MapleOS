@@ -4,7 +4,9 @@
 
 #include <string.h>
 
+#include "Utilities/Commands/DumpVarsCommand.h"
 #include "Utilities/Commands/EchoCommand.h"
+#include "Utilities/Commands/ResetCommand.h"
 #include "Utilities/Commands/StoreCommand.h"
 
 using namespace std;
@@ -13,8 +15,10 @@ using namespace std;
 Interpreter::Interpreter()
 {
 
+    variables = nullptr;
     RegisterCommands();
     cout << "Interpreter created" << endl;
+
 
 
 }
@@ -22,19 +26,7 @@ Interpreter::Interpreter()
 Interpreter::~Interpreter()
 {
     //Destroy Variables
-    VariableEntry* currentVariable = variables;
-    while (currentVariable)
-    {
-        VariableEntry* next = currentVariable->next;
-
-        mfree(currentVariable->name);
-        mfree(currentVariable->value);
-
-        currentVariable->~VariableEntry();
-
-        mfree(currentVariable);
-        currentVariable = next;
-    }
+    DestroyVariables();
     //Destroy Commands
     CommandNode* currentNode = head;
     while (currentNode)
@@ -50,6 +42,23 @@ Interpreter::~Interpreter()
     }
     cout << "Interpreter destroyed" << endl;
 }
+void Interpreter::DestroyVariables()
+{
+    VariableEntry* currentVariable = variables;
+    while (currentVariable)
+    {
+        VariableEntry* next = currentVariable->next;
+
+        mfree(currentVariable->name);
+        mfree(currentVariable->value);
+
+        currentVariable->~VariableEntry();
+
+        mfree(currentVariable);
+        currentVariable = next;
+    }
+    variables = nullptr;
+}
 
 void Interpreter::RegisterCommands()
 {
@@ -62,6 +71,16 @@ void Interpreter::RegisterCommands()
     void* storeMemory = mmalloc(sizeof(StoreCommand));
     Command* storeCommand = new (storeMemory) StoreCommand(this);
     RegisterCommand(storeCommand);
+
+    //RESET
+    void* resetMemory = mmalloc(sizeof(ResetCommand));
+    Command* resetCommand = new (resetMemory) ResetCommand(this);
+    RegisterCommand(resetCommand);
+
+    //DUMPVARS
+    void* dumpVarsMemory = mmalloc(sizeof(DumpVarsCommand));
+    Command* dumpVarsCommand = new (dumpVarsMemory) DumpVarsCommand(this);
+    RegisterCommand(dumpVarsCommand);
 }
 
 void Interpreter::RegisterCommand(Command *command)
@@ -90,6 +109,8 @@ Error Interpreter::InterpretCommand(TokenList &tokens)
 
         }
     }
+
+    //Memory::GetInstance()->PrintHeap();
 
 
 

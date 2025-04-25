@@ -68,6 +68,7 @@ public:
 
     Interpreter();
     ~Interpreter();
+    void DestroyVariables();
     void help();
     void Execute(const vector<string>& tokens);
 
@@ -77,6 +78,8 @@ public:
     Error InterpretCommand(TokenList& tokens);
 
     const char* FindVariable(const char* name) const;
+
+
 
 
 };

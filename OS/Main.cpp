@@ -11,15 +11,22 @@ int main()
     Memory* ram = Memory::GetInstance();
 
     void* shellMemory = mmalloc(sizeof(Shell));
-    Shell* shell = new(shellMemory) Shell();
+    Shell* shell = new(shellMemory) Shell(101);
 
     cout << "----------------" << endl;
     const char *title = "MapleOS V0.1";
     cout << title << endl;
 
+
     //while (true){}
-    char *input = shell->GetInput();
-    shell->ProcessInput(input, ' ');
+    for (int index = 0; index < 10; index++)
+    {
+
+        shell->ProcessInput(' ');
+        //ram->PrintHeap();
+
+    }
+
 
 
     //while (true)shell.GetInput();

@@ -2,6 +2,8 @@
 #include "OS/Shell.h"
 #include "Memory.h"
 #include <cstddef>
+
+#include "Components/Memory.h"
 #include "Utilities/SystemColors.h"
 #include "Utilities/MemoryUtils.h"
 #include "OS/Interpreter.h"

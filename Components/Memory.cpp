@@ -4,6 +4,8 @@
 #include <iostream>
 #include <sstream>
 #include "Memory.h"
+#include "Components/Memory.h"
+
 #include <windows.h>//"
 #include "Utilities/SystemColors.h"
 using std::cout, std::endl;
@@ -28,7 +30,8 @@ int Memory::Initialize(int sizeKB)
     cout << "Allocating Memory\n";
     cout << "Page Table size: " << heapStart << endl;
     cout << "Heap Start: " << heapStart << endl;
-    vRAM = (char*) std::malloc(size);
+
+    vRAM = static_cast<char *>(std::malloc(size));
     memset(vRAM, 0, size);
     cout << "Size of a heap block: " << sizeof(HeapBlock) << endl;
 

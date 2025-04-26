@@ -4,6 +4,7 @@
 #include "Memory.h"
 #include <cstddef>
 #include "../include/Utilities/SystemColors.h"
+#include "Components/Memory.h"
 #include "OS/Interpreter.h"
 #include "Utilities/MemoryUtils.h"
 #include "Utilities/SystemUtils.h"
@@ -28,24 +29,8 @@ void Shell::GetInput()
     cout << "$>";
 
     memset(buffer, '\0', bufferSize);
-
-    //cin.getline(buffer, 101);
     ReadLine(bufferSize);
 
-    //cout << buffer << endl;
-
-
-    //cout << GetNextToken(buffer,' ') << " " << GetNextToken(nullptr,' ');
-    // const char* token = GetNextToken(buffer, ' ');
-    // while (token != nullptr)
-    // {
-    //     cout << token << " ";
-    //     token = GetNextToken(nullptr, ' ');
-    // }
-    // cout << endl;
-
-    //PrintBuffer(buffer);
-    //mfree(buffer);
 
 }
 
@@ -54,7 +39,7 @@ size_t Shell::ReadLine(size_t size)
     size_t index = 0;
     int  currentCharacter = 0;
     while (index + 1 < size &&
-        (currentCharacter = std::cin.get()) != EOF &&
+        (currentCharacter = cin.get()) != EOF &&
         currentCharacter != '\n')
     {
         buffer[index] = static_cast<char>(currentCharacter);
@@ -66,7 +51,7 @@ size_t Shell::ReadLine(size_t size)
     if (currentCharacter != '\n' && currentCharacter != EOF)
     {
         int c;
-        while ((c = std::cin.get()) != EOF && c != '\n');
+        while ((c = cin.get()) != EOF && c != '\n');
     }
     return index;
 }
@@ -126,7 +111,6 @@ TokenList* Shell::TokenizeInput(char delimiter)
     {
         if (buffer[index++] == delimiter) spaceCount++;
     }
-    //cout << "Space count: " << spaceCount << endl;
 
     //spaceCount + 1 is token count
     spaceCount++;
@@ -141,7 +125,6 @@ TokenList* Shell::TokenizeInput(char delimiter)
 
     while (token && index < spaceCount)
     {
-        //cout << "Token: " << token << endl;
         size_t tokenLength = strlen(token);
         char* copyToken = static_cast<char*>(mmalloc(tokenLength+1));
         memcpy(copyToken, token, tokenLength+1);
@@ -152,8 +135,7 @@ TokenList* Shell::TokenizeInput(char delimiter)
     }
 
 
-    //memory->PrintHeap();
-    void* memoryPointer =mmalloc(sizeof(TokenList));
+    void* memoryPointer = mmalloc(sizeof(TokenList));
     if (memoryPointer == nullptr)
         cout << "Memory pointer is null" << endl;
 

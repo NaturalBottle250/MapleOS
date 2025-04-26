@@ -11,7 +11,7 @@ add_executable(MapleOS Components/Memory.cpp
         include/OS/Shell.h
         OS/System.cpp
         include/OS/System.h
-        include/Memory.h
+        include/Components/Memory.h
         Utilities/SystemColors.cpp
         include/Utilities/SystemColors.h
         OS/Main.cpp
@@ -26,4 +26,6 @@ add_executable(MapleOS Components/Memory.cpp
         include/Utilities/Commands/ResetCommand.h
         Utilities/Commands/DumpVarsCommand.cpp
         include/Utilities/Commands/DumpVarsCommand.h
+        Components/CPU.cpp
+        include/Components/CPU.h
 )

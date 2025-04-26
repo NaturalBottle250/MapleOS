@@ -4,6 +4,8 @@
 
 #include "Memory.h"
 #include <sal.h>
+
+#include "Components/Memory.h"
 #pragma once
 #ifndef MAPLEOS_MEMORYUTILS_H
 #define MAPLEOS_MEMORYUTILS_H

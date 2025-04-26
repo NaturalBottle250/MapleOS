@@ -1,3 +1,6 @@
+Echo Command
+1.Print variables
+
 Store Command
 1. Make it disallow names not starting with alphabetic characters
 2. Make it update a previously stored variable

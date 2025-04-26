@@ -17,7 +17,7 @@ class EchoCommand : public Command
 public:
     const char* name() const override { return "echo"; }
 
-    const char* description() const override { return "Prints all its arguments"; }
+    const char* description() const override { return "Prints all its arguments, or a variable via 'print $varName'"; }
     size_t minArgs() const override { return 1; }
     size_t maxArgs() const override { return 99; }
 

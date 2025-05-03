@@ -1,7 +1,3 @@
-//
-// Created by danie on 2024-12-02.
-//
-
 #ifndef MAPLEOS_SYSTEMCOLORS_H
 #define MAPLEOS_SYSTEMCOLORS_H
 

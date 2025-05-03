@@ -28,4 +28,8 @@ add_executable(MapleOS Components/Memory.cpp
         include/Utilities/Commands/DumpVarsCommand.h
         Components/CPU.cpp
         include/Components/CPU.h
+        Languages/Assembler.cpp
+        include/Languages/Assembler.h
+        Utilities/Tokenizer.cpp
+        include/Utilities/Tokenizer.h
 )

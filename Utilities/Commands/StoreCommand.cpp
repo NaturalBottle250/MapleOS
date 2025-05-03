@@ -24,6 +24,7 @@ void StoreCommand::Execute(const TokenList &tokens)
 
     size_t memorySize = nameLength + valueLength + sizeof(VariableEntry);
 
+    //TODO:: MENTION 1 VS 3 ALLOCATIONS
     char* entryMemory = static_cast<char*>(mmalloc(memorySize));
 
     auto* entry = new (entryMemory) VariableEntry

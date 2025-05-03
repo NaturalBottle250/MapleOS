@@ -47,10 +47,11 @@ void Interpreter::DestroyVariables()
     VariableEntry* currentVariable = variables;
     while (currentVariable)
     {
+        cout << currentVariable->name << endl;
         VariableEntry* next = currentVariable->next;
 
-        mfree(currentVariable->name);
-        mfree(currentVariable->value);
+        //mfree(currentVariable->name);
+        //mfree(currentVariable->value);
 
         currentVariable->~VariableEntry();
 

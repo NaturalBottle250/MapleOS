@@ -1,7 +1,3 @@
-//
-// Created by danie on 2024-12-02.
-//
-
 #include "../include/Utilities/SystemColors.h"
 #include <windows.h>
 #include <iostream>

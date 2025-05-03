@@ -9,6 +9,7 @@
 #include "Utilities/MemoryUtils.h"
 #include "Utilities/SystemUtils.h"
 #include "Utilities/TokenList.h"
+#include "Utilities/Tokenizer.h"
 using namespace std;
 
 
@@ -104,6 +105,7 @@ Shell::~Shell()
 
 TokenList* Shell::TokenizeInput(char delimiter)
 {
+    return Tokenize(buffer, delimiter);
 
     size_t spaceCount = 0, index = 0;
 

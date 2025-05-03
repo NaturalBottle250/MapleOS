@@ -6,7 +6,6 @@
 #include "Memory.h"
 #include "Components/Memory.h"
 
-#include <windows.h>//"
 #include "Utilities/SystemColors.h"
 using std::cout, std::endl;
 
@@ -17,7 +16,7 @@ int Memory::Initialize(int sizeKB)
     std::ostringstream oss;
 
 
-    cout << "Page size in table: " << sizeof(Page) <<endl;
+    cout << "Page size in table: " << sizeof(Frame) <<endl;
     size = sizeKB*1024;
     if(sizeKB > MAX_RAM)
     {
@@ -26,7 +25,7 @@ int Memory::Initialize(int sizeKB)
 
 
 
-    heapStart = PAGE_TABLE_SIZE + (PAGE_COUNT * PAGE_SIZE);
+    heapStart = FRAME_TABLE_SIZE + (PAGE_COUNT * PAGE_SIZE);
     cout << "Allocating Memory\n";
     cout << "Page Table size: " << heapStart << endl;
     cout << "Heap Start: " << heapStart << endl;
@@ -48,16 +47,16 @@ int Memory::Initialize(int sizeKB)
     //cout << sizeof(Page) << endl;
 
 
-    pageTable = (Page*) vRAM;
+    frameTable = reinterpret_cast<Frame *>(vRAM);
 
 
     for (size_t index = 0; index < PAGE_COUNT; index++)
     {
-        Page& page = pageTable[index];
-        page.frame = index;
+        Frame& page = frameTable[index];
+        page.index = index;
         page.pID = -1;
         page.filledBytes = 0;
-        page.write = true;
+        page.write = false;
         page.read = false;
 
         for (size_t i = 0; i < PAGE_SIZE; i++)
@@ -67,7 +66,7 @@ int Memory::Initialize(int sizeKB)
     }
     cout << "Paged RAM: " << PAGE_COUNT * PAGE_SIZE <<"\n";
 
-    oss << "Initialized Page table with size " << PAGE_TABLE_SIZE;
+    oss << "Initialized Page table with size " << FRAME_TABLE_SIZE;
     SystemColors::PrintColored(oss.str().c_str(), BRIGHT_BLUE);
 
     oss.str("");
@@ -85,9 +84,9 @@ size_t Memory::AllocatePage(int pID)
 {
     for(size_t index = 0; index < PAGE_COUNT; index++)
     {
-        if(pageTable[index].pID == -1)
+        if(frameTable[index].pID == -1)
         {
-            pageTable[index].pID = pID;
+            frameTable[index].pID = pID;
             return index;
         }
     }
@@ -96,7 +95,7 @@ size_t Memory::AllocatePage(int pID)
 
 int Memory::StoreByte(size_t frame, char byte)
 {
-    Page& page = pageTable[frame];
+    Frame& page = frameTable[frame];
 
     size_t address = GetFrameAddress(frame);
     address = address + page.filledBytes++;
@@ -106,7 +105,7 @@ int Memory::StoreByte(size_t frame, char byte)
 
     std::ostringstream oss;
     oss << "Wrote value '" << byte << "' to address " << address << std::dec
-        << " (frame " << page.frame << ", offset " << page.filledBytes-1 << " at actual "<< static_cast<void*>(&vRAM[address])  <<")";
+        << " (frame " << page.index << ", offset " << page.filledBytes-1 << " at actual "<< static_cast<void*>(&vRAM[address])  <<")";
     SystemColors::PrintColored(oss.str().c_str(), BRIGHT_BLUE);
 
     oss.str("");
@@ -115,7 +114,7 @@ int Memory::StoreByte(size_t frame, char byte)
 
 int Memory::StoreInt(size_t frame, int number)
 {
-    Page& page = pageTable[frame];
+    Frame& page = frameTable[frame];
 
     size_t address = GetFrameAddress(frame);
     address = address + page.filledBytes;
@@ -125,7 +124,7 @@ int Memory::StoreInt(size_t frame, int number)
     std::ostringstream oss;
 
     oss << "Wrote value [" << number << "] at [" << address << " -> " << address + sizeof(int) - 1 << "]";
-    oss << " (frame " << page.frame << ", offset " << page.filledBytes << " at actual "<< static_cast<void*>(&vRAM[address])  <<")";
+    oss << " (frame " << page.index << ", offset " << page.filledBytes << " at actual "<< static_cast<void*>(&vRAM[address])  <<")";
 
     for(int index = 0; index < sizeof(number); index++)
     {
@@ -149,7 +148,7 @@ size_t Memory::GetFrameAddress(size_t frame) const
 
 char *Memory::GetPageContent(size_t frame, int count)
 {
-    Page& page = pageTable[frame];
+    Frame& page = frameTable[frame];
 
     size_t beginAddress= GetFrameAddress(frame);
 
@@ -331,7 +330,7 @@ int Memory::GetFreeBytes()
 
 void Memory::PrintPage(int number, bool printEmpty)
 {
-    const Page& p = pageTable[number];
+    const Frame& p = frameTable[number];
     bool isEmpty = (p.pID == -1);
 
     if (!isEmpty || (isEmpty && printEmpty))
@@ -341,7 +340,7 @@ void Memory::PrintPage(int number, bool printEmpty)
 
         if (!isEmpty)
         {
-            cout << "frame = "     << p.frame       << "\n"
+            cout << "frame = "     << p.index       << "\n"
                  << "pid = "       << p.pID        << "\n"
                  << "used = "      << p.filledBytes<< "\n"
                  << "R = "         << p.read        << "\n"

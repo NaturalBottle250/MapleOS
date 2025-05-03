@@ -2,15 +2,26 @@
 #include "OS/Shell.h"
 #include "Memory.h"
 #include <cstddef>
+#include <cstdint>
+#include <sstream>
 
 #include "Components/Memory.h"
+#include "Languages/Assembler.h"
 #include "Utilities/SystemColors.h"
 #include "Utilities/MemoryUtils.h"
 #include "OS/Interpreter.h"
-int main()
+#include "Utilities/Tokenizer.h"
+
+
+void RunOS()
 {
-    cout << "Hello World!" << endl;
+
+    cout << "Hello World! " << sizeof(int*) << endl;
     Memory* ram = Memory::GetInstance();
+
+    std::ostringstream oss;
+    oss << "Hello World!" << endl;
+    SystemColors::PrintColored(oss.str().c_str(), RED);
 
     void* shellMemory = mmalloc(sizeof(Shell));
     Shell* shell = new(shellMemory) Shell(101);
@@ -64,6 +75,34 @@ int main()
 
     //ram->PrintHeap();
 
+}
+
+void TestAssembler()
+{
+    char buffer[] = "LOADI R0 55";
+    TokenList* tokens = Tokenize(buffer, ' ');
+
+    std::cout << "Buffer: " << buffer << std::endl;
+
+    //tokens->Print();
+
+    std::vector<uint8_t> bytes = Assembler::AssembleTokens(*tokens);
+
+    std::cout << "Bytecode:";
+    for (uint8_t b : bytes)
+    {
+        std::cout << " 0x" << std::hex << static_cast<int>(b);
+    }
+    std::cout << std::dec << std::endl;
+
+    tokens->~TokenList();
+    mfree(tokens);
+}
+
+
+int main()
+{
+    TestAssembler();
 
     return 0;
 }

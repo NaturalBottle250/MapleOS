@@ -2,28 +2,24 @@
 #ifndef MAPLEOS_MEMORY_H
 #define MAPLEOS_MEMORY_H
 
-#include <cstddef>
 
 
-#define RAM_SIZE_KB 4
+#define RAM_SIZE_KB 8
 #define MAX_RAM 1024
 
-#define PAGE_SIZE      16
+#define PAGE_SIZE      64
 #define PAGE_COUNT     16
-#define PAGE_TABLE_SIZE    (PAGE_COUNT * sizeof(Page))
+#define FRAME_TABLE_SIZE    (PAGE_COUNT * sizeof(Frame))
 
 
-//#define ZERO_ADDRESS PAGE_TABLE_SIZE
-
-#define HEAP_START (ZERO_ADDRESS + (PAGE_COUNT * PAGE_SIZE))
 enum DataType
 {
     EMPTY_TYPE, CHAR_TYPE, INT_TYPE, FLOAT_TYPE, STRING_TYPE
 };
 
-struct Page
+struct Frame
 {
-    size_t frame;
+    size_t index;
     int pID, filledBytes;
     bool write, read;
     DataType metadata[PAGE_SIZE];
@@ -71,9 +67,9 @@ public:
     void Reset();
 
     char* vRAM;
-    Page* pageTable;
+    Frame* frameTable;
     static Memory* instance;
-    int size, heapStart, zeroAddress = PAGE_TABLE_SIZE;
+    int size, heapStart, zeroAddress = FRAME_TABLE_SIZE;
 
     size_t GetFrameAddress(size_t frame) const;
 

@@ -10,7 +10,7 @@
 #ifndef TOKENLIST_H
 #define TOKENLIST_H
 #include "MemoryUtils.h"
-
+#include <iostream>
 struct TokenList
 {
     char** tokens;
@@ -22,6 +22,12 @@ struct TokenList
             mfree(tokens[index]);
 
         mfree(tokens);
+    }
+
+    void Print() const
+    {
+        for (int index = 0; index < count; index++)
+            std::cout << "Token #" << index << ": " << tokens[index] << std::endl;
     }
 };
 
